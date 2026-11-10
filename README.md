@@ -62,3 +62,8 @@
   <a href="https://instagram.com/ahnafwzz"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" /></a>
   <a href="mailto:ahnaf.afa16@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white" /></a>
 </p>
+
+<br>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ahnafwzz/ahnafwzz/output/github-contribution-grid-snake-dark.svg" alt="Snake Animation" />
+</p>
