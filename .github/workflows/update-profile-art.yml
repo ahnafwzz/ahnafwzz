@@ -1,0 +1,54 @@
+name: Update Profile Cards
+
+on:
+  schedule:
+    - cron: "17 17 * * *" # 00:17 WIB, menit 17 dipilih supaya tidak bentrok jam sibuk GitHub
+  workflow_dispatch:
+
+concurrency:
+  group: profile-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pillow numpy
+
+      - name: Fetch GitHub data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/fetch_github_data.py
+
+      - name: Render SVG cards
+        run: |
+          test -f source-prepped.png || { echo "source-prepped.png tidak ada di repo"; exit 1; }
+          python scripts/make_ascii_svg.py
+          python scripts/render_heatmap_svg.py
+          python scripts/render_terminal_svg.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/github_data.json ahnaf-ascii.svg ahnaf-ascii-static.svg ahnaf-heatmap.svg ahnaf-focus.svg
+          if git diff --staged --quiet; then
+            echo "Tidak ada perubahan, commit dilewati."
+            exit 0
+          fi
+          git commit -m "chore: refresh profile cards"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
